@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Croate au quotidien</title>
+<meta name="theme-color" content="#d52b1e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: friendly, brisk coach — one grammar point, a handful of words, real sentences.
+   IDEA: the šahovnica — each lesson is a square of the red-and-white checkerboard you fill in.
+   PICTURE: the checkerboard of 24 lessons on the home screen; the exercise card in a session.
+   COLOUR and TYPE: white ground, Croatian red, Adriatic blue support; Rubik titles, Inter text.
+   LAYOUT: one calm column, max 680px, big tap targets, phone first. */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0d1726);--ink:light-dark(#14213d,#eef2f8);--soft:light-dark(#5b6680,#a7b3c8);--card:light-dark(#f3f6fb,#15233a);--line:light-dark(#dfe5ef,#26395a);--red:#d52b1e;--blue:light-dark(#1450a3,#6aa2ff);--ok:light-dark(#1d7a46,#5fd08f);--okbg:light-dark(#e6f5ec,#123524);--kobg:light-dark(#fdecea,#3a1717)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+main{max-width:680px;margin:0 auto;padding:clamp(18px,4vw,40px) 16px 60px}
+h1,h2,.big{font-family:Rubik,system-ui,sans-serif;font-weight:700;line-height:1.1;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,6vw,42px)}h2{font-size:24px}
+.sub{color:var(--soft);margin:6px 0 0}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.streak{text-align:right}.streak b{font:700 36px/1 Rubik,sans-serif;color:var(--red)}.streak span{display:block;color:var(--soft);font-size:13px}
+.board{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin:24px 0;border:2px solid var(--red);border-radius:10px;overflow:hidden}
+.sq{aspect-ratio:1;border:0;padding:5px;font:600 13px Inter,sans-serif;display:flex;align-items:flex-end;cursor:pointer;color:var(--soft);background:var(--card)}
+.sq:nth-child(12n+2),.sq:nth-child(12n+4),.sq:nth-child(12n+6),.sq:nth-child(12n+7),.sq:nth-child(12n+9),.sq:nth-child(12n+11){background:var(--bg)}
+.sq.done{background:var(--red)!important;color:#fff}
+.sq.cur{box-shadow:inset 0 0 0 3px var(--blue);color:var(--blue)}
+.sq:disabled{cursor:default;opacity:.55}
+button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.today{background:var(--card);border-radius:14px;padding:20px;display:grid;gap:10px}
+.today .lab{color:var(--soft);font-size:14px}
+.btn{font:600 17px Inter,sans-serif;min-height:52px;padding:0 22px;border-radius:12px;border:0;background:var(--red);color:#fff;cursor:pointer;width:100%}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+@media(max-width:480px){.row{grid-template-columns:1fr}}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.bar{height:8px;background:var(--card);border-radius:8px;overflow:hidden;margin:4px 0 22px}.bar i{display:block;height:100%;background:var(--red);transition:width .3s}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+.head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.x{background:none;border:0;color:var(--soft);font-size:15px;cursor:pointer;min-height:44px;padding:0 6px}
+.rule p{margin:10px 0}.rule b{color:var(--blue)}
+.scroll{overflow-x:auto;margin:14px 0}
+table{border-collapse:collapse;width:100%;font-size:15px}th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--soft);font-weight:600;font-size:13px}
+td:first-child{color:var(--soft)}
+.card{background:var(--card);border-radius:16px;padding:24px 18px;text-align:center;display:grid;gap:10px;justify-items:center}
+.big{font-size:clamp(26px,7vw,38px);overflow-wrap:anywhere}.mid{font-size:clamp(20px,5vw,26px)}
+.gap{color:var(--red);font-weight:700}
+.hint{color:var(--soft);font-size:15px}
+.spk{width:48px;height:48px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--blue);cursor:pointer;display:grid;place-items:center;flex:none}
+.q{color:var(--soft);margin:0 0 10px;font-size:15px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.opts.one{grid-template-columns:1fr}
+@media(max-width:480px){.opts{grid-template-columns:1fr}}
+.opt{min-height:56px;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;font:500 17px Inter,sans-serif;cursor:pointer;padding:8px 12px}
+.opt.good{border-color:var(--ok);background:var(--okbg)}.opt.bad{border-color:var(--red);background:var(--kobg)}
+.build{min-height:64px;border:2px dashed var(--line);border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;align-items:center}
+.pool{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}
+.chip{min-height:44px;padding:0 14px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:500 17px Inter,sans-serif;cursor:pointer}
+.build .chip{background:var(--bg);border-color:var(--blue)}
+.chip:disabled{visibility:hidden}
+input.t{width:100%;font:500 20px Inter,sans-serif;padding:12px 14px;min-height:52px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);margin-top:16px}
+.keys{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.keys button{min-width:48px;min-height:44px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:600 18px Inter,sans-serif;cursor:pointer}
+.fb{margin-top:18px;border-radius:14px;padding:16px;display:grid;gap:8px}
+.fb.ok{background:var(--okbg)}.fb.ko{background:var(--kobg)}
+.fb b{font-family:Rubik,sans-serif;font-size:19px}.fb small{color:var(--soft);font-size:14px}
+.end{text-align:center;display:grid;gap:14px;justify-items:center}
+.score{font:700 clamp(56px,14vw,88px)/1 Rubik,sans-serif;color:var(--red)}
+.find{width:100%;font-size:16px;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);min-height:48px;margin:14px 0}
+h3{font:600 15px Inter,sans-serif;color:var(--soft);margin:22px 0 6px}
+.w{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.w div{flex:1}.w small{color:var(--soft);display:block;font-size:15px}
+.note{font-size:13px;color:var(--soft);margin-top:24px}
+details{border-bottom:1px solid var(--line);padding:10px 0}summary{cursor:pointer;font-weight:600;min-height:32px}
+</style>
+</head>
+<body>
+<main id="app"><h1>Croate au quotidien</h1><p class="sub">Chargement…</p></main>
+<script>
+{
+/* r: règle (HTML), tb: tableau, w: [croate, français], g: [phrase à trous, réponse, [leurres], explication], s: [français, croate, [variantes]], c: [phrase entendue, sens, [leurres], note] */
+const L=[
+{t:"Le verbe biti",r:["La forme courte de <b>biti</b> (sam, si, je…) ne se met <b>jamais en 1re position</b> : elle vient en 2e place. On dit « Umoran sam » ou « Ja sam umoran », jamais « Sam umoran ».","Négation : <b>nisam, nisi, nije…</b> Question : <b>Jesi li umoran ?</b> En Bosnie on entend surtout <b>Da li si umoran ?</b>"],
+tb:[["","présent","négation","forme longue"],["ja","sam","nisam","jesam"],["ti","si","nisi","jesi"],["on / ona / ono","je","nije","jest(e)"],["mi","smo","nismo","jesmo"],["vi","ste","niste","jeste"],["oni / one / ona","su","nisu","jesu"]],
+w:[["umoran","fatigué"],["sretan (bs : srećan)","heureux"],["gladan","affamé"],["žedan","assoiffé"],["zauzet","occupé"],["spreman","prêt"],["kod kuće","à la maison"],["prijatelj","ami"]],
+g:[["Ja ___ umoran.","sam",["je","si","su"]],["Mi ___ spremni.","smo",["ste","su","sam"]],["Ona ___ gladna. (elle n'a pas faim)","nije",["nisam","ne je","nisu"]],["___ li gladan? (tu)","Jesi",["Si","Je","Jesam"],"La forme courte « si » ne peut pas ouvrir la phrase : on prend la forme longue."]],
+s:[["Je suis fatigué aujourd'hui.","Danas sam umoran",["Umoran sam danas","Ja sam danas umoran"]],["Tu es à la maison ?","Jesi li kod kuće",["Da li si kod kuće"]]],
+c:[["Nisam gladan, hvala.","Je n'ai pas faim, merci.",["J'ai très faim, merci.","Je ne suis pas fatigué, merci.","Je suis prêt, merci."]],["Da li si spreman?","Tu es prêt ?",["Tu es fatigué ?","Tu es chez toi ?","Tu as soif ?"],"« Da li » est la façon bosnienne (et orale) de poser une question."]]},
+
+{t:"Genre et adjectifs",r:["Le genre se voit à la terminaison : <b>masculin</b> = consonne (grad), <b>féminin</b> = -a (kuća), <b>neutre</b> = -o / -e (selo, more).","Pièges : quelques masculins en -a (tata, kolega) et des féminins en consonne (noć, stvar, ljubav).","L'adjectif s'accorde : <b>lijep</b> grad, <b>lijepa</b> kuća, <b>lijepo</b> selo."],
+tb:[["","masculin","féminin","neutre"],["nom","grad","kuća","selo"],["exceptions","tata, kolega","noć, stvar","—"],["adjectif","lijep grad","lijepa kuća","lijepo selo"],["« ce, cette »","ovaj","ova","ovo"]],
+w:[["grad","ville (m.)"],["kuća","maison (f.)"],["selo","village (n.)"],["noć","nuit (f.)"],["stvar","chose (f.)"],["lijep","beau"],["star","vieux"],["nov","neuf, nouveau"]],
+g:[["Ovo je ___ kuća. (beau)","lijepa",["lijep","lijepo","lijepi"]],["Ovo je ___ selo. (vieux)","staro",["star","stara","stari"]],["Noć je ___. (beau)","lijepa",["lijep","lijepo","lijepi"],"« Noć » finit par une consonne mais elle est féminine."],["Ovaj grad je ___. (neuf)","nov",["nova","novo","nove"]]],
+s:[["C'est une belle ville.","Ovo je lijep grad",["To je lijep grad"]],["La maison est vieille.","Kuća je stara",[]]],
+c:[["Mostar je stvarno lijep grad.","Mostar est vraiment une belle ville.",["Mostar est une ville très ancienne.","Mostar n'est pas une grande ville.","Mostar est un beau village."]],["Ova stvar je nova.","Cette chose est neuve.",["Cette nuit est belle.","Cette maison est neuve.","Cette chose est vieille."]]]},
+
+{t:"Le présent",r:["Trois groupes de conjugaison selon la 1re personne : <b>-am</b> (imam), <b>-im</b> (govorim), <b>-em</b> (pijem).","La 3e personne du pluriel est la forme à surveiller : imaju, govore, piju.","Irréguliers fréquents : ići → idem, moći → mogu, htjeti → hoću. Ne + imati = <b>nemam</b>, ne + htjeti = <b>neću</b>."],
+tb:[["","-am (imati)","-im (govoriti)","-em (piti)"],["ja","imam","govorim","pijem"],["ti","imaš","govoriš","piješ"],["on / ona","ima","govori","pije"],["mi","imamo","govorimo","pijemo"],["vi","imate","govorite","pijete"],["oni","imaju","govore","piju"]],
+w:[["imati","avoir"],["govoriti","parler"],["pričati","parler, raconter (très courant)"],["piti","boire"],["raditi","travailler, faire"],["znati","savoir"],["živjeti (živim)","vivre, habiter"],["čekati","attendre"]],
+g:[["Oni ___ dvoje djece. (imati)","imaju",["ima","imamo","imate"]],["Ti ___ dobro hrvatski. (govoriti)","govoriš",["govori","govorim","govore"]],["Mi ___ kavu. (piti)","pijemo",["pimo","pijete","piju"]],["Gdje ___? (živjeti, tu)","živiš",["živim","živi","žive"]],["Ja ___ vremena. (ne + imati)","nemam",["ne imam","nisam","neimam"]]],
+s:[["Nous travaillons à Mostar.","Radimo u Mostaru",["Mi radimo u Mostaru","U Mostaru radimo"]],["Je ne sais pas où il habite.","Ne znam gdje živi",["Ne znam gdje on živi"]]],
+c:[["Čekam te ispred crkve.","Je t'attends devant l'église.",["Tu m'attends devant l'église.","Je te vois devant l'église.","Je t'attends derrière l'église."]],["Ne razumijem šta pričaš.","Je ne comprends pas ce que tu racontes.",["Je ne sais pas à qui tu parles.","Je ne comprends pas où tu vas.","Je ne sais pas ce que tu bois."]]]},
+
+{t:"L'accusatif singulier",r:["L'accusatif marque le <b>complément d'objet</b> (je vois QUOI ?) et la direction après u / na.","Féminin en -a → <b>-u</b> : kava → Pijem kav<b>u</b>.","Masculin <b>animé</b> (personne, animal) → <b>-a</b> : Vidim brat<b>a</b>. Masculin inanimé et neutre : pas de changement (Tražim hotel, Volim more)."],
+tb:[["","nominatif","accusatif"],["m. inanimé","hotel","hotel"],["m. animé","brat","brata"],["f. en -a","kava","kavu"],["f. consonne","stvar","stvar"],["neutre","more","more"],["adj. f.","nova knjiga","novu knjigu"],["adj. m. animé","dobar prijatelj","dobrog prijatelja"]],
+w:[["vidjeti (vidim)","voir"],["voljeti (volim)","aimer"],["tražiti","chercher"],["kupiti","acheter"],["kava (bs : kafa)","café"],["voda","eau"],["brat","frère"],["knjiga","livre"]],
+g:[["Pijem ___. (kava)","kavu",["kava","kave","kavom"]],["Vidim ___. (brat)","brata",["brat","bratu","bratom"],"Un masculin animé prend -a à l'accusatif."],["Tražim ___. (hotel)","hotel",["hotela","hotelu","hotelom"],"Masculin inanimé : l'accusatif = le nominatif."],["Volim ___. (more)","more",["mora","moru","morem"]],["Kupujem ___. (nova knjiga)","novu knjigu",["nova knjiga","novu knjiga","nove knjige"]]],
+s:[["Il boit de l'eau.","On pije vodu",["Pije vodu"]],["Je cherche un ami.","Tražim prijatelja",[]]],
+c:[["Trebam auto za sutra.","J'ai besoin d'une voiture pour demain.",["J'ai une voiture pour demain.","Je cherche un bus pour demain.","Je prends la voiture demain."]],["Vidiš li onu crkvu?","Tu vois cette église là-bas ?",["Tu vas à cette église ?","Tu aimes cette église ?","Tu connais cette église ?"]]]},
+
+{t:"Le locatif : où on est",r:["Pour dire <b>où l'on est</b> : u / na + <b>locatif</b>. Aussi après <b>o</b> (au sujet de) et <b>po</b>.","Masculin et neutre → <b>-u</b> (u Mostar<b>u</b>, na mor<b>u</b>). Féminin -a → <b>-i</b> (u kuć<b>i</b>, u crkv<b>i</b>).","<b>u</b> = dans (ville, pays, bâtiment) ; <b>na</b> = sur, et pour certains lieux : na poslu, na moru, na plaži, na aerodromu.","Devant -i, k / g / h deviennent c / z / s : ruka → u ruci, Amerika → u Americi."],
+tb:[["","nominatif","locatif"],["m.","grad, Mostar","u gradu, u Mostaru"],["n.","selo, more","u selu, na moru"],["f. -a","kuća, crkva","u kući, u crkvi"],["f. consonne","noć","u noći"],["k / g / h","ruka, knjiga","u ruci, u knjizi"],["adjectif","mali grad / mala kuća","u malom gradu / u maloj kući"]],
+w:[["posao (na poslu)","travail (au travail)"],["škola","école"],["ulica","rue"],["trgovina (bs : prodavnica)","magasin"],["kafić","café (le bar)"],["centar","centre-ville"],["aerodrom","aéroport"],["sjediti (sjedim)","être assis"]],
+g:[["Živim u ___. (Sarajevo)","Sarajevu",["Sarajevo","Sarajeva","Sarajevom"]],["Sad sam na ___. (posao)","poslu",["posao","posla","poslom"],"Posao perd son -a- quand on ajoute une terminaison : posl-u."],["Čekam te u ___. (crkva)","crkvi",["crkvu","crkve","crkva"]],["Brat živi u ___. (Amerika)","Americi",["Ameriki","Amerike","Ameriku"],"k + i devient ci."],["Živimo u maloj ___. (kuća)","kući",["kuću","kuće","kuća"]]],
+s:[["Mon frère travaille à Sarajevo.","Moj brat radi u Sarajevu",["Brat mi radi u Sarajevu"]],["Nous sommes à la plage.","Mi smo na plaži",["Na plaži smo"]]],
+c:[["Još sam na poslu, javim se kasnije.","Je suis encore au travail, je te fais signe plus tard.",["Je vais au travail, je t'appelle demain.","Je suis déjà rentré, je te rappelle.","Je suis encore à l'école, j'arrive."]],["Sjedimo u kafiću u centru.","On est assis dans un café du centre.",["On va boire un café au centre.","On t'attend devant le café.","On habite dans le centre."]]]},
+
+{t:"Le génitif singulier",r:["Le génitif = « de » : provenance, appartenance, quantité, absence.","Il suit beaucoup de prépositions : <b>iz, od, do, bez, kod, ispred, iza, pored, poslije, prije, oko</b>.","Masculin / neutre → <b>-a</b> (iz grad<b>a</b>, kod brat<b>a</b>). Féminin -a → <b>-e</b> (iz Francusk<b>e</b>, bez vod<b>e</b>).","« Il n'y a pas de… » = <b>nema</b> + génitif : Nema vode."],
+tb:[["","nominatif","génitif"],["m.","grad, brat","iz grada, kod brata"],["n.","more, vino","do mora, čaša vina"],["f. -a","Francuska, voda","iz Francuske, bez vode"],["f. consonne","noć","do noći"],["adjectif","dobar / dobra","dobrog(a) / dobre"]],
+w:[["šećer","sucre"],["mlijeko","lait"],["šalica (bs : šolja)","tasse"],["čaša","verre"],["bez","sans"],["kod","chez"],["ispred","devant"],["poslije","après"]],
+g:[["Kava bez ___. (šećer)","šećera",["šećer","šećeru","šećerom"]],["Ja sam iz ___. (Francuska)","Francuske",["Francuska","Francusku","Francuskoj"]],["Večeras smo kod ___. (Ivan)","Ivana",["Ivan","Ivanu","Ivanom"]],["Nema ___. (voda)","vode",["voda","vodu","vodi"]],["Čaša ___. (vino)","vina",["vino","vinu","vinom"]]],
+s:[["Un café sans sucre, s'il vous plaît.","Kavu bez šećera molim",["Kafu bez šećera molim"]],["On se retrouve devant l'église.","Nađemo se ispred crkve",["Vidimo se ispred crkve"]]],
+c:[["Nema problema, dođi kod mene poslije posla.","Pas de problème, viens chez moi après le travail.",["Pas de problème, je viens chez toi avant le travail.","Il n'y a personne, viens au travail.","Pas de souci, on se voit au travail."]],["Imaš li malo mlijeka?","Tu as un peu de lait ?",["Tu veux un peu de lait ?","Tu as du sucre ?","Tu as un verre ?"]]]},
+
+{t:"Les nombres et les cas",r:["Après <b>1</b> : le nom s'accorde normalement (jedan brat, jedna sestra).","Après <b>2, 3, 4</b> : masculin / neutre en <b>-a</b>, féminin en <b>-e</b> (dva brata, dvije sestre). Attention : dva (m./n.) mais <b>dvije</b> (f.).","Après <b>5 et plus</b> (et malo, puno, koliko) : <b>génitif pluriel</b>, presque toujours en <b>-a</b> (pet dana, pet godina).","Irréguliers : čovjek → <b>ljudi</b> (pet ljudi) ; dijete → <b>djece</b> (dvoje djece)."],
+tb:[["","1","2, 3, 4","5 et plus"],["m.","jedan dan","dva dana","pet dana"],["f.","jedna sestra","dvije sestre","pet sestara"],["n.","jedno selo","tri sela","pet sela"],["personnes","jedan čovjek","dva čovjeka","pet ljudi"],["enfants","jedno dijete","dvoje djece","petoro djece"]],
+w:[["godina","année, an"],["sat","heure"],["dan","jour"],["mjesec","mois"],["tjedan (bs : sedmica)","semaine"],["čovjek / ljudi","homme / gens"],["dijete / djeca","enfant / enfants"],["koliko","combien"]],
+g:[["Imam dvije ___. (sestra)","sestre",["sestra","sestru","sestara"]],["Ostajemo pet ___. (dan)","dana",["dan","dani","danu"]],["Imam trideset i pet ___. (godina)","godina",["godine","godinu","godini"],"35 se termine par 5 : génitif pluriel."],["U grupi je dvadeset ___. (čovjek)","ljudi",["čovjeka","čovjek","ljudima"]],["Koliko ___ imaš? (enfants)","djece",["dijete","djeca","djetetu"]]],
+s:[["J'ai deux enfants.","Imam dvoje djece",[]],["Nous restons trois jours.","Ostajemo tri dana",["Tri dana ostajemo"]]],
+c:[["Grupa ima četrdeset ljudi, dva autobusa.","Le groupe compte quarante personnes et deux cars.",["Le groupe compte quatorze personnes et deux cars.","Le groupe part dans quarante minutes en car.","Le groupe a deux heures de route."]],["Za dva sata smo u Mostaru.","Dans deux heures on est à Mostar.",["Ça fait deux heures qu'on est à Mostar.","On reste deux jours à Mostar.","À deux heures on part de Mostar."]]]},
+
+{t:"Le datif : à qui ?",r:["Le datif répond à « <b>à qui ?</b> » : dati, reći, pisati, pomoći, javiti, poslati.","Masculin / neutre → <b>-u</b> (brat<b>u</b>). Féminin -a → <b>-i</b> (mam<b>i</b>, Marij<b>i</b>).","Pronoms courts : <b>mi, ti, mu, joj, nam, vam, im</b>. Ils servent dans des tournures très fréquentes : <b>Sviđa mi se</b> (ça me plaît), <b>Hladno mi je</b> (j'ai froid), <b>Drago mi je</b>, <b>Treba mi…</b> (il me faut)."],
+tb:[["","nominatif","datif"],["m. / n.","brat, Ivan","bratu, Ivanu"],["f. -a","mama, Marija","mami, Mariji"],["pronoms","ja · ti · on · ona","mi · ti · mu · joj"],["","mi · vi · oni","nam · vam · im"]],
+w:[["dati (dajem)","donner"],["reći (kažem)","dire"],["pomoći","aider"],["javiti se","faire signe, donner des nouvelles"],["poslati","envoyer"],["poruka","message"],["sviđati se","plaire"],["drago mi je","ça me fait plaisir"]],
+g:[["Daj ___ ključ. (mama)","mami",["mama","mamu","mame"]],["Sviđa ___ se Mostar. (à moi)","mi",["me","mene","ja"]],["Reci ___ da dolazim. (à lui)","mu",["ga","joj","njega"]],["Hladno ___ je. (à elle)","joj",["je","nju","ona"]],["Pišem ___ poruku. (prijatelj)","prijatelju",["prijatelja","prijatelj","prijateljem"]]],
+s:[["Ça te plaît ?","Sviđa li ti se",["Da li ti se sviđa"]],["Envoie-moi un message.","Pošalji mi poruku",[]]],
+c:[["Javi mi kad stigneš.","Fais-moi signe quand tu arrives.",["Appelle-moi quand tu pars.","Dis-moi quand tu viens.","Attends-moi quand tu arrives."]],["Baš mi je drago što si došao.","Je suis vraiment content que tu sois venu.",["C'est dommage que tu ne sois pas venu.","Je suis content de venir.","Ça me plaît vraiment ici."]]]},
+
+{t:"L'instrumental : avec",r:["L'instrumental exprime « <b>avec</b> » (s / sa) et le <b>moyen</b> (sans préposition) : autobus<b>om</b> = en bus.","Masculin / neutre → <b>-om</b>, mais <b>-em</b> après j, lj, nj, č, ć, š, ž, đ, c (s prijatelj<b>em</b>, s muž<b>em</b>). Féminin → <b>-om</b> (s mam<b>om</b>).","On dit <b>sa</b> devant s, z, š, ž et devant « mnom » : sa ženom, sa mnom."],
+tb:[["","nominatif","instrumental"],["m. / n.","brat, auto","s bratom, autom"],["m. palatal","prijatelj, muž","s prijateljem, s mužem"],["f. -a","mama, žena","s mamom, sa ženom"],["pronoms","ja · ti · on · ona","sa mnom · s tobom · s njim · s njom"],["","mi · vi · oni","s nama · s vama · s njima"]],
+w:[["muž","mari"],["žena","femme, épouse"],["kolega","collègue (m.)"],["putovati (putujem)","voyager"],["razgovarati","discuter"],["auto","voiture (m.)"],["sa mnom","avec moi"],["s kim?","avec qui ?"]],
+g:[["Putujem sa ___. (žena)","ženom",["ženu","žene","ženi"]],["Pijem kavu s ___. (prijatelj)","prijateljem",["prijateljom","prijatelja","prijatelju"],"Après lj, on met -em."],["Idemo ___. (autobus, en bus)","autobusom",["autobusa","autobusu","autobus"]],["Hoćeš li doći sa ___? (moi)","mnom",["mene","mi","meni"]],["Razgovaram s ___. (kolega)","kolegom",["kolegem","kolegu","kolege"]]],
+s:[["Je voyage avec ma femme.","Putujem sa ženom",["Sa ženom putujem"]],["Tu viens avec nous ?","Ideš li s nama",["Da li ideš s nama","Hoćeš li s nama"]]],
+c:[["Dolazim autom, ne autobusom.","Je viens en voiture, pas en bus.",["Je viens en bus, pas en voiture.","Je viens avec le bus de l'auto-école.","Je n'ai ni voiture ni bus."]],["S kim pričaš?","Avec qui tu parles ?",["De quoi tu parles ?","À qui tu écris ?","Qui t'a parlé ?"]]]},
+
+{t:"Le vocatif : interpeller",r:["Pour <b>appeler quelqu'un</b>, le nom change de forme.","Masculin → <b>-e</b> (Ivan → Ivan<b>e</b>!, brat → brat<b>e</b>!). Après une palatale → <b>-u</b> (prijatelj<b>u</b>!). k / g / h → č / ž / š : Bog → Bo<b>že</b>!","Féminin -a → <b>-o</b> (Marija → Marij<b>o</b>!, sestra → sestr<b>o</b>!). Les prénoms courts restent souvent inchangés : Ana!, Marko!"],
+tb:[["","nominatif","vocatif"],["m.","Ivan, brat, gospodin","Ivane! brate! gospodine!"],["k / g / h","Bog, čovjek","Bože! čovječe!"],["m. palatal","prijatelj","prijatelju!"],["f. -a","Marija, sestra","Marijo! sestro!"],["prénoms courts","Ana, Marko","Ana! Marko!"]],
+w:[["gospodine!","Monsieur !"],["gospođo!","Madame !"],["brate!","frérot ! (entre amis)"],["sestro!","ma sœur !"],["Bože!","mon Dieu !"],["prijatelju!","mon ami !"],["jarane!","mon pote ! (Bosnie)"],["čovječe!","mec ! / dis donc !"]],
+g:[["Dobar dan, ___! (gospodin)","gospodine",["gospodin","gospodina","gospodinu"]],["Hvala, ___! (Marija)","Marijo",["Marija","Mariju","Mariji"]],["Ajde, ___! (brat)","brate",["brat","brata","bratu"]],["Kako si, ___? (prijatelj)","prijatelju",["prijatelje","prijatelj","prijatelja"]]],
+s:[["Merci, mon Dieu !","Hvala ti Bože",["Bože hvala ti"]],["Comment ça va, Ivan ?","Kako si Ivane",["Ivane kako si"]]],
+c:[["Ajmo, jarane, kasnimo!","Allez, mon pote, on est en retard !",["Attends, mon pote, on est en avance !","Viens, mon frère, on mange !","Allez, mon pote, on rentre !"]],["Gospođo, izvolite sjesti.","Madame, asseyez-vous, je vous en prie.",["Madame, entrez, je vous en prie.","Madame, levez-vous s'il vous plaît.","Monsieur, asseyez-vous."]]]},
+
+{t:"Le pluriel",r:["Masculin → <b>-i</b> (prijatelj → prijatelj<b>i</b>). Beaucoup de masculins d'une syllabe prennent <b>-ovi / -evi</b> : grad → grad<b>ovi</b>, ključ → ključ<b>evi</b>.","Féminin -a → <b>-e</b> (kuća → kuć<b>e</b>) ; féminin consonne → <b>-i</b> (stvari). Neutre → <b>-a</b> (selo → sel<b>a</b>).","Irréguliers à connaître : čovjek → <b>ljudi</b>, dijete → <b>djeca</b>, brat → <b>braća</b>. Djeca et braća prennent un adjectif au féminin singulier : <b>moja</b> braća, djeca su umorn<b>a</b>."],
+tb:[["","singulier","pluriel"],["m.","prijatelj","prijatelji"],["m. court","grad, ključ","gradovi, ključevi"],["f. -a","kuća","kuće"],["f. consonne","stvar","stvari"],["n.","selo, more","sela, mora"],["irréguliers","čovjek, dijete, brat","ljudi, djeca, braća"]],
+w:[["ljudi","gens"],["djeca","enfants"],["braća","frères"],["roditelji","parents"],["ključevi","clés"],["novine","journal (toujours pluriel)"],["oči","yeux"],["vrata","porte (toujours pluriel)"]],
+g:[["Ovo su moji ___. (prijatelj)","prijatelji",["prijatelja","prijatelje","prijateljevi"]],["Ovdje su lijepe ___. (kuća)","kuće",["kuća","kući","kućovi"]],["Ovi ___ su stari. (grad)","gradovi",["gradi","grada","grade"]],["Moja ___ žive u Splitu. (brat)","braća",["brati","bratovi","brata"]],["Djeca su ___. (umoran)","umorna",["umorni","umorne","umoran"],"Djeca s'accorde comme un féminin singulier / neutre pluriel : -a."]],
+s:[["Les enfants sont fatigués.","Djeca su umorna",[]],["Ce sont de bons amis.","To su dobri prijatelji",["Oni su dobri prijatelji"]]],
+c:[["Ljudi su ovdje jako dobri.","Les gens d'ici sont très gentils.",["Il y a beaucoup de monde ici.","Les enfants sont très sages ici.","Les gens sont très fatigués."]],["Gdje su ti ključevi?","Où sont tes clés ?",["Où sont tes enfants ?","Tu as les clés ?","Où est ta voiture ?"]]]},
+
+{t:"Les pronoms aux cas",r:["Chaque pronom a une <b>forme courte</b> (en 2e position, sans insistance) et une <b>forme longue</b> (pour insister, ou après une préposition).","Volim <b>te</b> (je t'aime) / Volim <b>tebe</b>, ne njega (c'est toi que j'aime). Za <b>mene</b>, kod <b>nas</b>, s <b>njom</b>.","Ordre des petits mots en 2e position : <b>li – verbe auxiliaire (sam, ću…) – datif – accusatif – se – je</b>. Ex. : Dao sam <b>mu ga</b>."],
+tb:[["","acc. court","acc. long","dat. court","dat. long","instr."],["ja","me","mene","mi","meni","mnom"],["ti","te","tebe","ti","tebi","tobom"],["on","ga","njega","mu","njemu","njim"],["ona","je / ju","nju","joj","njoj","njom"],["mi","nas","nas","nam","nama","nama"],["vi","vas","vas","vam","vama","vama"],["oni","ih","njih","im","njima","njima"]],
+w:[["Volim te","Je t'aime"],["Čujem te","Je t'entends"],["Čekaj me","Attends-moi"],["Zovem te","Je t'appelle"],["za mene","pour moi"],["kod nas","chez nous"],["s njim","avec lui"],["Vidimo se","On se voit / à plus"]],
+g:[["Volim ___. (toi)","te",["ti","tebi","tvoj"]],["Ne vidim ___. (lui)","ga",["mu","njemu","on"]],["Ovo je za ___. (moi)","mene",["me","mi","meni"],"Après une préposition : forme longue."],["Dođi kod ___. (nous)","nas",["nam","nama","mi"]],["Idem s ___. (elle)","njom",["nju","njoj","joj"]]],
+s:[["Je t'appelle ce soir.","Zovem te večeras",["Večeras te zovem"]],["Attends-moi devant l'hôtel.","Čekaj me ispred hotela",[]]],
+c:[["Ne čujem te dobro, nazovi me kasnije.","Je ne t'entends pas bien, rappelle-moi plus tard.",["Je ne te vois pas bien, viens plus tard.","Je t'entends bien, appelle-moi demain.","Je ne comprends pas, écris-moi plus tard."]],["Kod nas je sve u redu.","Chez nous, tout va bien.",["Chez vous, tout va bien ?","Avec nous, tout est prêt.","Pour nous, c'est d'accord."]]]},
+
+{t:"Le passé",r:["Passé = <b>biti</b> (forme courte) + <b>participe</b> qui s'accorde : <b>-o</b> (homme), <b>-la</b> (femme), <b>-li</b> (pluriel).","La forme courte reste en 2e position : <b>Bio sam</b> u Mostaru / Jučer <b>sam bio</b> u Mostaru / Ja <b>sam bio</b>…","Négation : <b>nisam</b> bio. Question : <b>Jesi li</b> bio? / <b>Da li si</b> bio?","Participes irréguliers : ići → išao, doći → došao, reći → rekao, moći → mogao, jesti → jeo."],
+tb:[["","homme","femme","pluriel"],["biti","bio sam","bila sam","bili smo"],["raditi","radio","radila","radili"],["ići","išao","išla","išli"],["doći","došao","došla","došli"],["reći","rekao","rekla","rekli"],["moći","mogao","mogla","mogli"],["vidjeti","vidio","vidjela","vidjeli"]],
+w:[["jučer","hier"],["sinoć","hier soir"],["prošle godine","l'année dernière"],["već","déjà"],["još nisam","pas encore"],["stići (stigao)","arriver"],["zaboraviti","oublier"],["čuti (čuo)","entendre"]],
+g:[["Jučer ___ bio u Sarajevu.","sam",["jesam","ja","bih"]],["Ana je ___ sinoć. (doći)","došla",["došao","došli","došlo"]],["Mi smo ___ cijeli dan. (raditi)","radili",["radio","raditi","radimo"]],["Jesi li ___ za to? (čuti, à un homme)","čuo",["čula","čuli","čujem"]],["Još ___ jeo. (je n'ai pas encore mangé)","nisam",["ne sam","nije","sam ne"]]],
+s:[["Hier, j'étais à Medjugorje.","Jučer sam bio u Međugorju",["Bio sam jučer u Međugorju","Ja sam jučer bio u Međugorju"]],["Elle a oublié la clé.","Zaboravila je ključ",["Ona je zaboravila ključ"]]],
+c:[["Jesi li stigao? Javi se!","Tu es arrivé ? Fais signe !",["Tu pars quand ? Appelle !","Tu es parti ? Réponds !","Tu arrives ? Attends-moi !"]],["Sinoć smo dugo pričali.","Hier soir, on a parlé longtemps.",["Ce soir, on parlera longtemps.","Hier soir, on a mangé tard.","Hier, on a peu parlé."]]]},
+
+{t:"Le futur",r:["Futur = <b>ću, ćeš, će, ćemo, ćete, će</b> + infinitif : Ja <b>ću</b> raditi.","Si le verbe vient en tête, le croate écrit <b>radit ću</b> (le -i tombe) ; le bosnien écrit <b>radiću</b>. Les verbes en -ći ne changent pas : ići ću, doći ću.","Négation : <b>neću, nećeš…</b> Question : <b>Hoćeš li</b> doći? / <b>Da li ćeš</b> doći?"],
+tb:[["","avec pronom","verbe en tête (hr)","bosnien"],["ja","ja ću raditi","radit ću","radiću"],["ti","ti ćeš raditi","radit ćeš","radićeš"],["on / ona","on će raditi","radit će","radiće"],["mi","mi ćemo raditi","radit ćemo","radićemo"],["vi","vi ćete raditi","radit ćete","radićete"],["oni","oni će raditi","radit će","radiće"]],
+w:[["sutra","demain"],["prekosutra","après-demain"],["sljedeći tjedan (bs : sljedeće sedmice)","la semaine prochaine"],["uskoro","bientôt"],["vratiti se","revenir"],["ostati","rester"],["nazvati","appeler (téléphone)"],["doći","venir"]],
+g:[["Sutra ___ doći. (je)","ću",["sam","ćeš","bih"]],["Mi ___ ostati tri dana.","ćemo",["ćete","ću","smo"]],["___ li doći sutra? (tu)","Hoćeš",["Ćeš","Hoću","Jesi"],"« Ćeš » ne peut pas ouvrir la phrase : forme longue hoćeš."],["Ja ___ ići. (je n'irai pas)","neću",["nisam","nemam","ne"]],["Vratit ___ se uskoro. (je)","ću",["sam","se","bih"]]],
+s:[["Je t'appellerai demain.","Nazvat ću te sutra",["Sutra ću te nazvati","Nazvaću te sutra"]],["On restera deux jours.","Ostat ćemo dva dana",["Ostaćemo dva dana","Mi ćemo ostati dva dana"]]],
+c:[["Biće to dobro, ne brini.","Ça va aller, ne t'inquiète pas.",["C'était bien, ne t'en fais pas.","Ce sera long, sois patient.","C'est bon, ne viens pas."],"« Biće » = « bit će » à la bosnienne."],["Hoćeš li doći na kafu?","Tu viendras prendre un café ?",["Tu veux un café ?","Tu es venu prendre un café ?","Tu as bu ton café ?"]]]},
+
+{t:"L'aspect des verbes",r:["Presque chaque verbe existe en paire : <b>imperfectif</b> (action en cours, habitude) et <b>perfectif</b> (action menée à son terme, une fois).","Le perfectif au présent ne sert <b>pas pour « maintenant »</b>. On l'emploie après <b>kad, ako, da</b> et au futur : Kad <b>dođeš</b>, nazovi me.","Au passé : <b>Pio</b> sam kavu (je buvais un café) / <b>Popio</b> sam kavu (j'ai bu le café, c'est fait)."],
+tb:[["imperfectif (en cours, habitude)","perfectif (accompli, une fois)"],["piti","popiti"],["jesti","pojesti"],["pisati","napisati"],["čitati","pročitati"],["kupovati","kupiti"],["dolaziti","doći"],["zvati","nazvati"],["govoriti","reći"],["davati","dati"]],
+w:[["piti / popiti","boire"],["jesti / pojesti","manger"],["pisati / napisati","écrire"],["čitati / pročitati","lire"],["kupovati / kupiti","acheter"],["dolaziti / doći","venir"],["zvati / nazvati","appeler"],["govoriti / reći","parler / dire"]],
+g:[["Svaki dan ___ kruh. (acheter, habitude)","kupujem",["kupim","kupio","kupi"]],["Kad ___, nazovi me. (venir, tu)","dođeš",["dolaziš","došao","doći"]],["Već sam ___ knjigu. (lire, finie)","pročitao",["čitao","pročitam","čitam"]],["Upravo ___ kavu. (en train de boire)","pijem",["popijem","popio","popiti"]],["Moram ga ___ sutra. (appeler, une fois)","nazvati",["zvati","nazovem","zovem"]]],
+s:[["Quand tu arrives, fais-moi signe.","Kad dođeš javi mi se",["Javi mi se kad dođeš"]],["J'ai acheté les billets.","Kupio sam karte",["Karte sam kupio"]]],
+c:[["Popij kafu pa idemo.","Bois ton café et on y va.",["Bois un café avant de partir demain.","Tu as bu ton café, on y va ?","Prends un café, on reste."]],["Dolaziš li često u Mostar?","Tu viens souvent à Mostar ?",["Tu viens à Mostar demain ?","Tu es déjà venu à Mostar ?","Tu habites à Mostar ?"]]]},
+
+{t:"Lieu, direction, origine",r:["<b>Où on est</b> : u / na + <b>locatif</b> → U Mostar<b>u</b> sam.","<b>Où on va</b> : u / na + <b>accusatif</b> → Idem u Mostar. (En croate on demande <b>kamo?</b>, en Bosnie souvent <b>gdje?</b> ou <b>di?</b>)","<b>D'où on vient</b> : <b>iz</b> (pour u), <b>s / sa</b> (pour na), <b>od</b> (personne) + génitif.","Maison : <b>kod kuće</b> (j'y suis) / <b>kući</b> (j'y vais)."],
+tb:[["","lieu","direction","origine"],["u","u Mostaru","u Mostar","iz Mostara"],["na","na moru","na more","s mora"],["na","na poslu","na posao","s posla"],["personne","kod brata","kod brata","od brata"],["maison","kod kuće","kući","od kuće"]],
+w:[["kamo? (bs : gdje?)","où ? (direction)"],["odakle?","d'où ?"],["krenuti","partir, se mettre en route"],["stići","arriver"],["vraćati se","rentrer, revenir"],["kući","à la maison (direction)"],["ljeti","l'été"],["na selo","à la campagne (direction)"]],
+g:[["Idemo u ___ sutra. (Sarajevo)","Sarajevo",["Sarajevu","Sarajeva","Sarajevom"],"Direction : accusatif (= nominatif pour un neutre)."],["Upravo se vraćam s ___. (posao)","posla",["posao","poslu","poslom"]],["Ljeti smo na ___. (more)","moru",["more","mora","morem"]],["Ljeti idemo na ___. (more)","more",["moru","mora","morem"]],["Idem ___. (à la maison)","kući",["kod kuće","kuća","kuću"]]],
+s:[["On va à Mostar en bus.","Idemo u Mostar autobusom",["Autobusom idemo u Mostar","Idemo autobusom u Mostar"]],["Il revient de Split.","Vraća se iz Splita",["On se vraća iz Splita"]]],
+c:[["Di ćeš? — Idem kući.","Tu vas où ? — Je rentre à la maison.",["Tu es où ? — Je suis à la maison.","Tu viens d'où ? — De la maison.","Tu fais quoi ? — Je reste chez moi."],"« Di ćeš? » = « Gdje ćeš (ići)? », très oral."],["Odakle si došao?","D'où es-tu venu ?",["Où es-tu allé ?","Quand es-tu venu ?","Avec qui es-tu venu ?"]]]},
+
+{t:"Possessifs et svoj",r:["Les possessifs s'accordent comme des adjectifs : <b>moj</b> brat, <b>moja</b> žena, <b>moje</b> dijete.","À elle : <b>njezin</b> (croate) / <b>njen</b> (Bosnie, et oral partout).","<b>Svoj</b> = « son propre », renvoie au <b>sujet</b> : Ivan voli <b>svoju</b> ženu (sa femme à lui). « Ivan voli <b>njegovu</b> ženu » voudrait dire la femme d'un autre !"],
+tb:[["","m.","f.","n."],["mon","moj","moja","moje"],["ton","tvoj","tvoja","tvoje"],["son (à lui)","njegov","njegova","njegovo"],["son (à elle)","njezin / njen","njezina / njena","njezino / njeno"],["notre","naš","naša","naše"],["votre","vaš","vaša","vaše"],["leur","njihov","njihova","njihovo"],["son propre","svoj","svoja","svoje"]],
+w:[["moj","mon"],["tvoj","ton"],["njegov","son (à lui)"],["njezin / njen","son (à elle)"],["naš","notre"],["vaš","votre"],["njihov","leur"],["svoj","son propre (renvoie au sujet)"]],
+g:[["Ovo je ___ žena. (ma)","moja",["moj","moje","moju"]],["Marko zove ___ majku. (sa propre)","svoju",["njegovu","njezinu","svoja"],"La mère du sujet (Marko) : svoj."],["Gdje je ___ auto? (ton)","tvoj",["tvoja","tvoje","tvoju"],"Auto est masculin."],["Živimo u ___ kući. (notre)","našoj",["naša","našu","naše"]],["Ovo su ___ djeca. (leurs)","njihova",["njihovi","njihove","njihovo"],"Djeca prend l'accord en -a."]],
+s:[["Il parle avec sa femme.","Razgovara sa svojom ženom",["On razgovara sa svojom ženom"]],["Où est ta clé ?","Gdje je tvoj ključ",["Gdje ti je ključ"]]],
+c:[["Kako su tvoji? Pozdravi svoje!","Comment vont les tiens ? Salue ta famille !",["Comment vas-tu ? Salue tes amis !","Où sont tes enfants ? Appelle-les !","Comment va ta femme ? Embrasse-la !"]],["Njen muž radi u Njemačkoj.","Son mari (à elle) travaille en Allemagne.",["Son frère travaille en Allemagne.","Sa femme travaille en Allemagne.","Son mari rentre d'Allemagne."]]]},
+
+{t:"Verbes modaux",r:["<b>moći</b> (pouvoir), <b>morati</b> (devoir), <b>htjeti</b> (vouloir), <b>smjeti</b> (avoir le droit), <b>trebati</b> (falloir).","Croate standard : modal + <b>infinitif</b> → Moram ići.","En Bosnie (et beaucoup à l'oral) : modal + <b>da + présent</b> → Moram da idem. Les deux sont compris partout."],
+tb:[["","croate standard","Bosnie, oral"],["devoir","Moram ići.","Moram da idem."],["pouvoir","Mogu doći.","Mogu da dođem."],["vouloir","Hoću spavati.","Hoću da spavam."],["falloir","Trebam ići.","Treba da idem."]],
+w:[["mogu","je peux"],["moram","je dois"],["hoću","je veux"],["smijem","j'ai le droit"],["trebam","il me faut, je dois"],["pokušati","essayer"],["uspjeti","réussir"],["odmoriti se","se reposer"]],
+g:[["Moram ___ na posao. (ići)","ići",["idem","išao","idući"]],["Moram da ___ na posao. (ići)","idem",["ići","ideš","išao"],"Après « da » : présent conjugué."],["___ li ovdje parkirati? (ai-je le droit)","Smijem",["Moram","Trebam","Hoću"]],["Ne ___ doći večeras. (pouvoir, je)","mogu",["može","moram","mogao"]]],
+s:[["Je dois me reposer.","Moram se odmoriti",["Moram da se odmorim"]],["Tu peux m'aider ?","Možeš li mi pomoći",["Da li mi možeš pomoći","Možeš li da mi pomogneš"]]],
+c:[["Moram da idem, vidimo se.","Je dois y aller, à plus.",["Je veux venir, à tout de suite.","Il faut qu'on se voie.","Je peux venir, à demain."]],["Ne smiješ to reći nikome!","Tu ne dois le dire à personne !",["Tu ne peux rien dire à personne ?","Personne ne doit le savoir, sauf toi.","Tu n'as rien dit à personne ?"]]]},
+
+{t:"L'impératif",r:["Tu : <b>-i</b> ou <b>-j</b> → čekaj!, radi!, pij!, dođi!, reci!, sjedni! Vous : on ajoute <b>-te</b> → čekajte!, dođite!","Défense : <b>nemoj / nemojte</b> + infinitif (Nemoj ići!) ou <b>ne</b> + impératif imperfectif (Ne brini!).","À l'oral : <b>ajde / hajde</b> (allez), <b>ajmo</b> (allons-y)."],
+tb:[["infinitif","tu","vous","défense"],["čekati","čekaj!","čekajte!","nemoj čekati!"],["piti","pij!","pijte!","nemoj piti!"],["raditi","radi!","radite!","ne radi to!"],["doći","dođi!","dođite!","nemoj dolaziti!"],["reći","reci!","recite!","nemoj reći!"],["sjesti","sjedni!","sjednite!","—"]],
+w:[["Dođi!","Viens !"],["Čekaj!","Attends !"],["Sjedni!","Assieds-toi !"],["Uđi!","Entre !"],["Nemoj!","Ne fais pas ça !"],["Ne brini!","Ne t'inquiète pas !"],["Ajde! / Hajde!","Allez !"],["Ajmo!","Allons-y !"]],
+g:[["___ malo! (čekati, tu)","Čekaj",["Čekaš","Čekati","Čekao"]],["___ sutra! (doći, vous)","Dođite",["Dođi","Dolazite","Dođete"]],["___ zaboraviti! (ne… pas, tu)","Nemoj",["Ne","Nisi","Neću"]],["___ mi istinu! (reći, tu)","Reci",["Rekni","Reći","Rekao"]]],
+s:[["Assieds-toi, je t'en prie.","Sjedni molim te",["Molim te sjedni"]],["Ne t'inquiète pas.","Ne brini se",["Nemoj se brinuti","Ne brini"]]],
+c:[["Ajde, uđi, kafa je gotova.","Allez, entre, le café est prêt.",["Allez, sors, le café est fini.","Viens, on va prendre un café.","Entre, tu veux un café ?"]],["Nemojte se brinuti, sve je sređeno.","Ne vous inquiétez pas, tout est réglé.",["Ne vous dépêchez pas, tout va bien.","Inquiétez-vous, rien n'est prêt.","Ne partez pas, tout est rangé."]]]},
+
+{t:"Le conditionnel",r:["Conditionnel = <b>bih, bi, bi, bismo, biste, bi</b> + participe : <b>Volio bih</b> (homme) / <b>Voljela bih</b> (femme).","Politesse : <b>Biste li mogli</b> mi pomoći? (pourriez-vous m'aider ?)","Hypothèse : <b>Kad bih</b> imao vremena, došao bih. À l'oral on entend aussi <b>Da imam</b> vremena… (si j'avais le temps)."],
+tb:[["","auxiliaire","exemple"],["ja","bih","Volio bih…"],["ti","bi","Bi li mogao…?"],["on / ona","bi","Bilo bi lijepo."],["mi","bismo","Došli bismo."],["vi","biste","Biste li mogli…?"],["oni","bi","Htjeli bi…"]],
+w:[["volio bih","j'aimerais"],["želio bih","je voudrais"],["bilo bi lijepo","ce serait bien"],["trebalo bi","il faudrait"],["možda","peut-être"],["radije","plutôt"],["kad bih","si je (hypothèse)"],["opet","de nouveau"]],
+g:[["Želio ___ kavu.","bih",["bi","sam","ću"]],["___ li mi mogli pomoći? (vous)","Biste",["Bi","Bismo","Bih"]],["Mi bismo ___. (doći)","došli",["došao","doći","dođemo"]],["Kad bih imao vremena, ___ bih. (venir, je, homme)","došao",["dođem","doći","došla"]]],
+s:[["J'aimerais revenir l'année prochaine.","Volio bih se vratiti sljedeće godine",["Volio bih doći opet sljedeće godine"]],["Pourriez-vous m'aider ?","Biste li mi mogli pomoći",["Da li biste mi mogli pomoći"]]],
+c:[["Bilo bi lijepo da ostanete još malo.","Ce serait bien que vous restiez encore un peu.",["C'était bien que vous soyez restés.","Il serait temps que vous partiez.","Ce serait bien de revenir bientôt."]],["Da znam, rekao bih ti.","Si je savais, je te le dirais.",["Je sais, je te l'ai dit.","Si tu savais, tu me le dirais.","Je te dirai quand je saurai."]]]},
+
+{t:"Croate ou bosnien ?",r:["Croate et bosnien se comprennent parfaitement et partagent la même grammaire. Les différences portent surtout sur le <b>vocabulaire</b> et quelques formes : <b>što / šta</b>, <b>tko / ko</b>, futur <b>radit ću / radiću</b>, <b>da</b> + présent.","En Herzégovine, les Croates parlent croate (avec souvent <b>di</b> pour gdje) ; à Sarajevo, on parle bosnien, avec des mots d'origine turque."],
+tb:[["français","croate","bosnien"],["pain","kruh","hljeb"],["café","kava","kafa / kahva"],["quoi","što","šta"],["qui","tko","ko"],["mille","tisuća","hiljada"],["train","vlak","voz"],["semaine","tjedan","sedmica"],["tomate","rajčica","paradajz"],["où","gdje (oral : di)","gdje"]],
+w:[["kruh / hljeb","pain"],["kava / kafa","café"],["što / šta","quoi"],["tko / ko","qui"],["tisuća / hiljada","mille"],["vlak / voz","train"],["tjedan / sedmica","semaine"],["rajčica / paradajz","tomate"]],
+g:[["Croate « Što radiš? » → bosnien « ___ radiš? »","Šta",["Što","Ko","Šo"]],["Croate « Tko je to? » → bosnien « ___ je to? »","Ko",["Tko","Šta","Ki"]],["Croate « vlak » → bosnien « ___ »","voz",["vozilo","tren","vagon"]],["Croate « Radit ću » → bosnien « ___ »","Radiću",["Radit ću se","Ću raditi","Radim ću"]]],
+s:[["Qu'est-ce que tu fais ce soir ? (à la bosnienne)","Šta radiš večeras",["Večeras šta radiš"]],["Le matin, je bois un café. (à la bosnienne)","Ujutro pijem kafu",["Pijem kafu ujutro"]]],
+c:[["Ko je bio sinoć kod tebe?","Qui était chez toi hier soir ?",["Où étais-tu hier soir ?","Qu'as-tu fait hier soir ?","Qui viendra chez toi ce soir ?"]],["Treba mi hljeb i paradajz.","J'ai besoin de pain et de tomates.",["J'ai du pain et des tomates.","Il faut du lait et des tomates.","Je veux du pain et du fromage."]]]},
+
+{t:"Les mois",r:["Les Croates (y compris en Herzégovine) utilisent des <b>noms slaves</b> : siječanj, veljača… En Bosnie, on dit <b>januar, februar…</b>","« En mai » = u + locatif : <b>u svibnju</b> / <b>u maju</b>. Dans une date, génitif : <b>20. studenoga</b> / <b>20. novembra</b>."],
+tb:[["","croate","bosnien"],["janvier","siječanj","januar"],["février","veljača","februar"],["mars","ožujak","mart"],["avril","travanj","april"],["mai","svibanj","maj"],["juin","lipanj","juni"],["juillet","srpanj","juli"],["août","kolovoz","august"],["septembre","rujan","septembar"],["octobre","listopad","oktobar"],["novembre","studeni","novembar"],["décembre","prosinac","decembar"]],
+w:[["siječanj / januar","janvier"],["veljača / februar","février"],["ožujak / mart","mars"],["travanj / april","avril"],["svibanj / maj","mai"],["lipanj / juni","juin"],["srpanj / juli","juillet"],["kolovoz / august","août"],["rujan / septembar","septembre"],["listopad / oktobar","octobre"],["studeni / novembar","novembre"],["prosinac / decembar","décembre"]],
+g:[["Dolazimo u ___. (svibanj)","svibnju",["svibanj","svibnja","svibanju"]],["Rođen sam u ___. (maj)","maju",["maj","maja","maji"]],["Danas je dvadeseti ___. (studeni)","studenoga",["studeni","studenom","studenu"]],["« Kolovoz », c'est…","août",["juillet","septembre","avril"]]],
+s:[["On arrive en mai.","Dolazimo u svibnju",["Dolazimo u maju","U svibnju dolazimo","U maju dolazimo"]],["Je suis né en octobre.","Rođen sam u listopadu",["Rođen sam u oktobru"]]],
+c:[["Vidimo se u augustu, inšallah.","On se voit en août, si Dieu le veut.",["On s'est vus en août, grâce à Dieu.","On se voit en octobre, c'est sûr.","À bientôt en août, à la mosquée."]],["Hodočašće je u rujnu.","Le pèlerinage a lieu en septembre.",["Le pèlerinage a lieu en juin.","Le pèlerinage était en septembre.","Le pèlerinage dure un mois."]]]},
+
+{t:"Le parler de tous les jours",r:["Entre amis en Bosnie-Herzégovine, quelques petits mots reviennent sans cesse. Ils ne s'apprennent pas dans les livres de grammaire, mais ils aident beaucoup à comprendre.","<b>ba</b> : petite particule d'insistance (« hein », « quoi ») ; <b>bona</b> : pour interpeller une femme (Sarajevo) ; <b>vala</b> : « ma foi », « vraiment » ; <b>haman</b> : presque."],
+tb:null,
+w:[["Šta ima?","Quoi de neuf ?"],["Ništa posebno","Rien de spécial"],["Di si?","Salut, ça va ? (litt. où es-tu)"],["Ma daj!","Allez ! / Sérieux ?"],["Nema veze","Pas grave"],["polahko","doucement, tranquille"],["vala","ma foi, vraiment"],["haman","presque"],["jaran","pote, ami"],["merak","grand plaisir"]],
+g:[["« Haman sam stigao. » Haman veut dire…","presque",["déjà","enfin","jamais"]],["« Ma daj! » exprime…","la surprise ou l'incrédulité",["un remerciement","un ordre de donner","une salutation"]],["On te dit « Šta ima? ». Tu réponds :","Ništa posebno, a kod tebe?",["Imam dva brata.","Ima tri sata.","Nema na čemu."]],["« Pravi merak! » veut dire…","Un vrai bonheur !",["Quel malheur !","Vraiment cher !","Un vrai marché !"]]],
+s:[["Doucement, on a le temps.","Polahko imamo vremena",["Polako imamo vremena"]],["Quoi de neuf, mon pote ?","Šta ima jarane",["Jarane šta ima"]]],
+c:[["Ma nemoj, ba! Ozbiljno?","Non, sans blague ! Sérieux ?",["Ne fais pas ça ! C'est grave ?","Viens vite ! C'est urgent ?","Laisse tomber ! C'est fini ?"]],["Vala, haman sam zaboravio.","Ma foi, j'ai presque oublié.",["Vraiment, je n'ai rien oublié.","Désolé, j'ai déjà oublié.","Ma foi, je m'en souviens bien."]],["Di si, šta radiš?","Salut, tu fais quoi ?",["Où vas-tu, que fais-tu là ?","Où es-tu né ?","Tu es où ? Je t'attends."]]]},
+
+{t:"Chez des amis",r:["Leçon de synthèse : tout ce qu'il faut pour être reçu chez des amis, avec les cas déjà vus.","Remercier : <b>Hvala na</b> + locatif (hvala na gostoprimstv<b>u</b>, hvala na svem<b>u</b>). Saluer la famille de quelqu'un : <b>Pozdravi svoje</b> / <b>Pozdravi ženu</b>."],
+tb:null,
+w:[["Dobro došli!","Bienvenue !"],["Hoćeš li još?","Tu en veux encore ?"],["Dosta je, hvala","Ça suffit, merci"],["Bilo je odlično","C'était excellent"],["Hvala na gostoprimstvu","Merci pour l'accueil"],["Pozdravi ženu","Salue ta femme"],["Čujemo se","On s'appelle"],["Navratite opet","Repassez nous voir"]],
+g:[["Hvala vam na ___. (gostoprimstvo)","gostoprimstvu",["gostoprimstvo","gostoprimstva","gostoprimstvom"],"Hvala na + locatif."],["Pozdravi ___. (ta femme)","svoju ženu",["tvoja žena","tvojoj ženi","svojom ženom"]],["Sljedeći put ___ doći s djecom. (nous, futur)","ćemo",["smo","bismo","ćete"]],["Bilo je ___. (lijep)","lijepo",["lijep","lijepa","lijepi"]]],
+s:[["Merci pour tout, c'était excellent.","Hvala na svemu bilo je odlično",[]],["On s'appelle la semaine prochaine.","Čujemo se sljedeći tjedan",["Čujemo se sljedeće sedmice","Čujemo se idući tjedan","Čujemo se iduće sedmice"]]],
+c:[["Ma sjedi, ne žuri, popij još jednu kafu.","Allez, assieds-toi, ne te presse pas, bois encore un café.",["Lève-toi, dépêche-toi, on a bu le café.","Assieds-toi, je fais un café.","Ne t'assieds pas, on part prendre un café."]],["Drago mi je što ste došli, navratite opet.","Ça me fait plaisir que vous soyez venus, repassez nous voir.",["Dommage que vous partiez, revenez demain.","Je suis content de venir chez vous.","Merci d'être venus, à l'année prochaine."]]]}
+];
+
+/* Parcours « Foi » : homélies, prière, témoignages — accessible à tout moment */
+const F=[
+{t:"À la Messe",r:["Le vocabulaire de base pour suivre une Messe et les annonces de la paroisse. En croate, « misa » s'écrit sans majuscule.","À Medjugorje, la paroisse est tenue par les franciscains : on dit <b>fra</b> devant le prénom (fra Ivan) et on parle des <b>fratri</b>.","Aller à la Messe = <b>ići na misu</b> (accusatif, direction) ; être à la Messe = <b>biti na misi</b> (locatif)."],
+tb:[["","nominatif","accusatif (direction)","locatif (lieu)"],["la Messe","misa","na misu","na misi"],["confession","ispovijed","na ispovijed","na ispovijedi"],["adoration","klanjanje","na klanjanje","na klanjanju"],["paroisse","župa","u župu","u župi"]],
+w:[["misa","la Messe"],["svećenik","prêtre"],["fra / fratar","frère franciscain"],["župa","paroisse"],["župnik","curé"],["oltar","autel"],["pričest","communion"],["ispovijed","confession"],["propovijed","homélie"],["blagoslov","bénédiction"]],
+g:[["Idemo na ___. (misa)","misu",["misa","misi","mise"]],["Na ___ je bilo puno ljudi. (misa)","misi",["misu","misa","mise"]],["Fra Ivan drži ___. (propovijed)","propovijed",["propovijedi","propovijedu","propovijeda"],"Féminin en consonne : l'accusatif ne change pas."],["Poslije mise idem na ___. (ispovijed)","ispovijed",["ispovijedi","ispovijedu","ispovijeda"]]],
+s:[["La Messe commence à sept heures.","Misa počinje u sedam sati",["U sedam sati počinje misa"]],["Je vais me confesser.","Idem na ispovijed",[]]],
+c:[["Večernja misa je u šest sati.","La Messe du soir est à six heures.",["La Messe du matin est à six heures.","La Messe a duré six heures.","Il y a six Messes le soir."]],["Nakon mise je klanjanje pred Presvetim.","Après la Messe, il y a l'adoration devant le Saint-Sacrement.",["Avant la Messe, il y a les confessions.","Pendant la Messe, on prie le chapelet.","Après la Messe, il y a une procession."]]]},
+
+{t:"Prière et Gospa",r:["Les messages de Medjugorje commencent par <b>Draga djeco!</b> (Chers enfants !) et finissent par <b>Hvala vam što ste se odazvali mom pozivu</b> (Merci d'avoir répondu à mon appel).","Verbes clés : <b>moliti</b> (prier : molim, moliš… ; moliti se + datif = prier quelqu'un), <b>postiti</b> (jeûner), <b>pozivati</b> (appeler, inviter : Gospa nas poziva na… + accusatif)."],
+tb:[["","nominatif","accusatif","génitif","datif / locatif"],["Gospa","Gospa","Gospu","Gospe","Gospi"],["prière","molitva","molitvu","molitve","molitvi"],["chapelet","krunica","krunicu","krunice","krunici"],["message","poruka","poruku","poruke","poruci"]],
+w:[["molitva","prière"],["moliti (molim)","prier"],["krunica","chapelet"],["Gospa","la Vierge, Notre-Dame"],["Majka Božja","Mère de Dieu"],["ukazanje","apparition"],["poruka","message"],["post / postiti","jeûne / jeûner"],["klanjanje","adoration"],["Kraljica Mira","Reine de la Paix"]],
+g:[["Molimo ___. (krunica)","krunicu",["krunica","krunici","krunice"]],["Gospa nas poziva na ___. (molitva)","molitvu",["molitva","molitvi","molitve"]],["Srijedom i petkom ___. (postiti, nous)","postimo",["posti","postim","poste"]],["Ovo je poruka ___. (Gospa)","Gospe",["Gospa","Gospi","Gospu"]]],
+s:[["Prions pour la paix.","Molimo za mir",["Molimo se za mir"]],["La Vierge nous appelle à la conversion.","Gospa nas poziva na obraćenje",[]]],
+c:[["Draga djeco! Pozivam vas na molitvu srcem.","Chers enfants ! Je vous appelle à la prière du cœur.",["Chers enfants ! Je vous remercie pour vos prières.","Chers enfants ! Priez pour mon cœur.","Chers amis ! Je vous invite à jeûner."],"Formule typique des messages de Medjugorje."],["Na Brdu ukazanja molili smo krunicu.","Sur la colline des apparitions, on a prié le chapelet.",["Sur le Križevac, on a fait le chemin de croix.","Sur la colline, on a vu une apparition.","À l'église, on a prié le chapelet."]]]},
+
+{t:"Le langage des homélies",r:["Une homélie commence souvent par <b>Braćo i sestre</b> ou <b>Dragi vjernici</b> (chers fidèles).","Les noms divins se déclinent comme les autres : vjerujem u <b>Boga</b> (acc.), molimo se <b>Bogu</b> (dat.), <b>Bože</b>! (voc.). Le Christ : <b>Krist</b> en croate, <b>Hrist</b> en serbe.","Trois vertus : <b>vjera, nada, ljubav</b> (foi, espérance, charité)."],
+tb:[["","nominatif","accusatif","génitif","datif / locatif"],["Dieu","Bog","Boga","Boga","Bogu"],["Jésus","Isus","Isusa","Isusa","Isusu"],["le Seigneur","Gospodin","Gospodina","Gospodina","Gospodinu"],["Marie","Marija","Mariju","Marije","Mariji"],["l'Esprit Saint","Duh Sveti","Duha Svetoga","Duha Svetoga","Duhu Svetom"]],
+w:[["Gospodin","le Seigneur"],["Duh Sveti","l'Esprit Saint"],["Evanđelje","l'Évangile"],["grijeh","péché"],["milost","grâce"],["milosrđe","miséricorde"],["spasenje","salut"],["vjera","foi"],["nada","espérance"],["obraćenje","conversion"]],
+g:[["Vjerujem u ___. (Bog)","Boga",["Bog","Bogu","Bogom"]],["Molimo se ___. (Bog)","Bogu",["Boga","Bog","Bogom"],"Moliti se + datif."],["U ime Oca i Sina i ___ Svetoga.","Duha",["Duh","Duhu","Duhom"]],["Bez ___ nema spasenja. (vjera)","vjere",["vjera","vjeru","vjeri"]]],
+s:[["Frères et sœurs, Dieu nous aime.","Braćo i sestre Bog nas voli",[]],["Le Seigneur pardonne nos péchés.","Gospodin oprašta naše grijehe",["Gospodin nam oprašta grijehe"]]],
+c:[["Danas nam Evanđelje govori o milosrđu.","Aujourd'hui, l'Évangile nous parle de la miséricorde.",["Aujourd'hui, nous lisons l'Évangile de la grâce.","Demain, l'Évangile parlera du pardon.","Aujourd'hui, l'Évangile nous demande la paix."]],["Obratite se i vjerujte Evanđelju!","Convertissez-vous et croyez à l'Évangile !",["Écoutez et lisez l'Évangile !","Revenez et priez avec l'Évangile !","Convertissez-vous et priez pour la paix !"]]]},
+
+{t:"Comprendre un témoignage",r:["Un témoignage se raconte au <b>passé</b>, surtout avec des verbes <b>perfectifs</b> (ce qui est arrivé une fois) : osjetio sam, shvatio sam, ozdravio sam.","Structure typique : <b>Prije sam bio…</b> (avant j'étais…), <b>a onda…</b> (et puis…), <b>od tada…</b> (depuis…).","Rappel : -o pour un homme, -la pour une femme : osjetio / osjetila."],
+tb:[["infinitif","homme","femme","sens"],["osjetiti","osjetio","osjetila","ressentir"],["shvatiti","shvatio","shvatila","comprendre (d'un coup)"],["ozdraviti","ozdravio","ozdravila","guérir"],["oprostiti","oprostio","oprostila","pardonner"],["plakati","plakao","plakala","pleurer"],["početi","počeo","počela","commencer"]],
+w:[["svjedočanstvo","témoignage"],["svjedočiti","témoigner"],["obratiti se","se convertir"],["ozdravljenje","guérison"],["čudo","miracle"],["mir u srcu","la paix du cœur"],["patnja","souffrance"],["zahvaliti","remercier"],["od tada","depuis lors"],["daleko od Boga","loin de Dieu"]],
+g:[["Tada sam ___ mir u srcu. (osjetiti, homme)","osjetio",["osjetila","osjetim","osjetiti"]],["Ona je ___ nakon molitve. (ozdraviti)","ozdravila",["ozdravio","ozdravi","ozdravili"]],["Bog mi je ___ grijehe. (oprostiti)","oprostio",["oprostila","oprosti","oprostiti"]],["Prije nisam ___ u Boga. (vjerovati, homme)","vjerovao",["vjerovala","vjerujem","vjerovati"]]],
+s:[["J'ai ressenti une grande paix.","Osjetio sam veliki mir",["Osjetio sam velik mir"]],["Ici, j'ai compris que Dieu m'aime.","Ovdje sam shvatio da me Bog voli",[]]],
+c:[["Prije deset godina bio sam daleko od Boga.","Il y a dix ans, j'étais loin de Dieu.",["Depuis dix ans, je suis proche de Dieu.","Il y a dix ans, je suis venu ici avec Dieu.","Dans dix ans, je serai prêtre."]],["Kad sam prvi put došla u Međugorje, plakala sam cijelu misu.","La première fois que je suis venue à Medjugorje, j'ai pleuré pendant toute la Messe.",["La première fois à Medjugorje, j'ai prié toute la nuit.","Quand je viendrai à Medjugorje, j'irai à toutes les Messes.","La dernière fois à Medjugorje, j'ai raté la Messe."]]]},
+
+{t:"Fêtes et temps liturgiques",r:["Pour une fête, on dit <b>za</b> ou <b>na</b> + accusatif : za Božić, na Uskrs, na Veliku Gospu.","Pendant une période : <b>u</b> + locatif : u korizmi, u došašću.","À Pâques, on se salue : <b>Krist je uskrsnuo!</b> — on répond <b>Uistinu je uskrsnuo!</b>"],
+tb:[["français","croate"],["Noël","Božić"],["Pâques","Uskrs"],["Carême","korizma"],["Avent","došašće (bs : advent)"],["Pentecôte","Duhovi"],["Assomption (15 août)","Velika Gospa"],["Toussaint","Svi sveti"],["Vendredi saint","Veliki petak"]],
+w:[["Božić","Noël"],["Uskrs","Pâques"],["korizma","Carême"],["došašće","Avent"],["Duhovi","Pentecôte"],["Velika Gospa","Assomption"],["Svi sveti","Toussaint"],["blagdan","fête religieuse"],["hodočasnik","pèlerin"],["procesija","procession"]],
+g:[["Sretan ___! (Božić)","Božić",["Božića","Božiću","Božićem"]],["Za ___ idemo kući. (Uskrs)","Uskrs",["Uskrsa","Uskrsu","Uskrsom"]],["Na ___ je velika procesija. (Velika Gospa)","Veliku Gospu",["Velika Gospa","Velikoj Gospi","Velike Gospe"]],["U ___ postimo. (korizma)","korizmi",["korizmu","korizma","korizme"]]],
+s:[["Joyeux Noël et bonne année !","Sretan Božić i nova godina",["Sretan Božić i sretna nova godina"]],["Christ est ressuscité !","Krist je uskrsnuo",["Hrist je uskrsnuo"]]],
+c:[["Za Božić dolazi puno hodočasnika.","Pour Noël, beaucoup de pèlerins viennent.",["À Noël, peu de pèlerins viennent.","Pour Pâques, beaucoup de pèlerins viennent.","Après Noël, les pèlerins repartent."]],["Sretan blagdan svima!","Bonne fête à tous !",["Bonne année à tous !","Merci à tous !","Bon voyage à tous !"]]]}
+];
+const ALL=[...L.map((l,i)=>Object.assign(l,{id:'m'+i,n:String(i+1)})),...F.map((l,i)=>Object.assign(l,{id:'f'+i,n:'Foi '+(i+1)}))];
+const byId=id=>ALL.find(x=>x.id===id);
+
+const app=document.getElementById('app');
+const K='hrvatski-v2';
+let S={done:{},streak:0,last:null};
+try{const old=JSON.parse(localStorage.getItem('hrvatski-v1')||'{}');S=Object.assign(S,{streak:old.streak||0,last:old.last||null},JSON.parse(localStorage.getItem(K)||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const today=()=>ymd(new Date());
+const yday=()=>{const d=new Date();d.setDate(d.getDate()-1);return ymd(d)};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const norm=s=>s.toLowerCase().replace(/[.,!?…—–«»"]/g,' ').replace(/\s+/g,' ').trim();
+const flat=s=>norm(s).replace(/dž/g,'dz').replace(/đ/g,'d').replace(/[čć]/g,'c').replace(/š/g,'s').replace(/ž/g,'z');
+const ICON='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+let voice=null;const hasSpeech='speechSynthesis' in window;
+const pick=()=>{try{const v=speechSynthesis.getVoices();voice=v.find(x=>/^hr/i.test(x.lang))||v.find(x=>/^(bs|sr)/i.test(x.lang))||null}catch(e){}};
+if(hasSpeech){pick();speechSynthesis.onvoiceschanged=pick}
+const say=t=>{if(!hasSpeech)return;try{const u=new SpeechSynthesisUtterance(t.replace(/\(.*?\)/g,'').replace(/\.\.\./g,'').replace(/ \/ /g,', '));u.lang=voice?voice.lang:'hr-HR';if(voice)u.voice=voice;u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}};
+const spk=t=>`<button class="spk" data-say="${esc(t)}" aria-label="Écouter">${ICON}</button>`;
+const doneCount=()=>L.filter(l=>S.done[l.id]).length;
+const curIdx=()=>{const i=L.findIndex(l=>!S.done[l.id]);return i<0?null:i};
+const anyDone=()=>ALL.some(l=>S.done[l.id]);
+const streakNow=()=>(S.last===today()||S.last===yday())?S.streak:0;
+const table=tb=>tb?`<div class="scroll"><table><thead><tr>${tb[0].map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${tb.slice(1).map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'';
+const gapHtml=q=>esc(q).replace('___','<span class="gap">___</span>');
+const headBar=(lab,pct)=>`<div class="head"><button class="x" data-go="home">← Quitter</button><span class="sub" style="margin:0">${lab}</span></div><div class="bar"><i style="width:${pct}%"></i></div>`;
+
+function home(){
+  const c=curIdx(),st=streakNow(),doneToday=S.last===today();
+  const sq=L.map((l,i)=>{const d=!!S.done[l.id],cur=i===c;return `<button class="sq ${d?'done':''} ${cur?'cur':''}" data-l="${l.id}" ${(!d&&!cur)?'disabled':''} title="${esc(l.t)}" aria-label="Leçon ${i+1} : ${esc(l.t)}">${i+1}</button>`}).join('');
+  const lesson=c===null?`<div class="lab">Les 24 leçons sont terminées</div><h2>Révision du jour</h2><button class="btn" data-go="review">Réviser (12 questions)</button>`
+   :`<div class="lab">${doneToday?'Déjà fait aujourd\'hui, tu peux continuer':'Leçon du jour'} · règle + ${L[c].w.length} mots + exercices · 8 à 10 min</div><h2>${c+1}. ${esc(L[c].t)}</h2><button class="btn" data-l="${L[c].id}">Commencer</button>`;
+  const faith=F.map(l=>`<button class="opt" data-l="${l.id}" style="text-align:left">${S.done[l.id]?'✓ ':''}${esc(l.t)}</button>`).join('');
+  app.innerHTML=`<div class="top"><div><h1>Croate au quotidien</h1><p class="sub">Grammaire, vocabulaire et langue parlée en Bosnie-Herzégovine · ${doneCount()} / ${L.length}</p></div><div class="streak"><b>${st}</b><span>jour${st>1?'s':''} d'affilée</span></div></div>
+  <div class="board">${sq}</div>
+  <div class="today">${lesson}</div>
+  <h3>Parcours foi · homélies, prière, témoignages (à faire quand tu veux)</h3><div class="opts">${faith}</div>
+  <div class="row"><button class="btn alt" data-go="review" ${anyDone()?'':'disabled'}>Révision</button><button class="btn alt" data-go="rules">Grammaire</button><button class="btn alt" data-go="lex">Lexique</button></div>
+  <p class="note">Ta progression est gardée dans ce navigateur. Les cases rouges se rouvrent pour refaire une leçon.</p>`;
+}
+
+let ses=null;
+function startLesson(id){ses={lesson:byId(id)};ruleView()}
+function ruleView(){
+  const l=ses.lesson;
+  app.innerHTML=`${headBar('Leçon '+l.n+' · la règle',8)}<h2>${esc(l.t)}</h2><div class="rule">${l.r.map(p=>`<p>${p}</p>`).join('')}</div>${table(l.tb)}<button class="btn" data-go="vocab">Voir le vocabulaire</button>`;
+}
+function vocabView(){
+  const l=ses.lesson;
+  app.innerHTML=`${headBar('Leçon '+l.n+' · les mots',18)}<h2>${l.w.length} mots à retenir</h2>${l.w.map(w=>`<div class="w">${spk(w[0])}<div><strong>${esc(w[0])}</strong><small>${esc(w[1])}</small></div></div>`).join('')}<div class="row2"><button class="btn alt" data-go="rule">Revoir la règle</button><button class="btn" data-go="quiz">Exercices</button></div>`;
+}
+const vocabItems=(ws,n)=>shuffle(ws).slice(0,n).map((w,i)=>({k:(i%3===2&&!w[0].includes('/')&&!w[0].includes('(')&&w[0].length<=18)?'type':(i%2?'fh':'hf'),w}));
+const itemsOf=(l,nv)=>[...vocabItems(l.w,nv),...l.g.map(g=>({k:'g',g})),...l.s.map(s=>({k:'s',s})),...l.c.map(c=>({k:'c',c}))];
+function startQuiz(){
+  const l=ses.lesson;
+  const prev=ALL.filter(x=>S.done[x.id]&&x!==l);
+  const rev=shuffle(prev.flatMap(p=>itemsOf(p,2))).slice(0,3);
+  const v=vocabItems(l.w,6);
+  ses.q=[...v.slice(0,3),...shuffle(l.g.map(g=>({k:'g',g}))),...v.slice(3),...l.s.map(s=>({k:'s',s})),...l.c.map(c=>({k:'c',c})),...rev];
+  ses.qi=0;ses.ok=0;ses.total=ses.q.length;ses.base=25;question();
+}
+function startReview(){
+  const done=ALL.filter(x=>S.done[x.id]);if(!done.length)return home();
+  ses={lesson:null,base:0};ses.q=shuffle(done.flatMap(l=>itemsOf(l,3))).slice(0,12);ses.qi=0;ses.ok=0;ses.total=ses.q.length;question();
+}
+function vOpts(w,side){
+  const pool=ALL.flatMap(l=>l.w);const out=[w[side]],seen=new Set(out);
+  for(const x of shuffle(pool)){if(out.length>=4)break;if(!seen.has(x[side])){seen.add(x[side]);out.push(x[side])}}
+  return shuffle(out);
+}
+const optBtns=(arr,one)=>`<div class="opts ${one?'one':''}">${arr.map(t=>`<button class="opt" data-ans="${esc(t)}">${esc(t)}</button>`).join('')}</div>`;
+function question(){
+  const it=ses.q[ses.qi],pct=ses.base+(ses.qi/ses.q.length)*(100-ses.base);ses.answered=false;
+  const lab=(ses.lesson?'Exercices':'Révision')+' · '+(ses.qi+1)+' / '+ses.q.length;
+  let body='';
+  if(it.k==='hf'){it.right=it.w[1];body=`<p class="q">Que veut dire…</p><div class="card"><div class="big">${esc(it.w[0])}</div></div>${optBtns(vOpts(it.w,1))}`}
+  else if(it.k==='fh'){it.right=it.w[0];body=`<p class="q">Comment dit-on en croate…</p><div class="card"><div class="big mid">${esc(it.w[1])}</div></div>${optBtns(vOpts(it.w,0))}`}
+  else if(it.k==='type'){body=`<p class="q">Écris en croate</p><div class="card"><div class="big mid">${esc(it.w[1])}</div></div><input class="t" id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ta réponse"><div class="keys">${['č','ć','š','ž','đ'].map(k=>`<button data-key="${k}">${k}</button>`).join('')}</div><button class="btn" data-go="check">Vérifier</button>`}
+  else if(it.k==='g'){const [q,a,o]=it.g;it.right=a;body=`<p class="q">Grammaire · complète la phrase</p><div class="card"><div class="big mid">${gapHtml(q)}</div></div>${optBtns(shuffle([a,...o]),a.length>14)}`}
+  else if(it.k==='c'){const [h,f,o]=it.c;it.right=f;body=`<p class="q">Compréhension · ton ami te dit :</p><div class="card"><div class="big mid">« ${esc(h)} »</div>${spk(h)}</div>${optBtns(shuffle([f,...o]),true)}`}
+  else if(it.k==='s'){const [f,h]=it.s;it.tokens=shuffle(h.split(' '));it.picked=[];body=`<p class="q">Construis la phrase en croate</p><div class="card"><div class="big mid">${esc(f)}</div></div><div class="build" id="build" aria-label="Ta phrase"></div><div class="pool">${it.tokens.map((t,i)=>`<button class="chip" data-tok="${i}">${esc(t)}</button>`).join('')}</div><button class="btn" data-go="checks">Vérifier</button>`}
+  app.innerHTML=headBar(lab,pct)+body+'<div id="fb"></div>';
+  const a=document.getElementById('ans');if(a)a.focus();
+}
+function feedback(good,main,extra){
+  const it=ses.q[ses.qi];ses.answered=true;
+  if(good){if(!it.retry)ses.ok++}else if(!it.retry)ses.q.push(Object.assign({},it,{retry:true,k:it.k==='type'?'fh':it.k}));
+  document.getElementById('fb').innerHTML=`<div class="fb ${good?'ok':'ko'}"><b>${good?'Tačno ! Bravo.':'Pas tout à fait'}</b><div>${main}</div>${extra?`<small>${extra}</small>`:''}<button class="btn" data-go="cont" id="cont">Continuer</button></div>`;
+  document.getElementById('cont').focus();
+}
+function choose(btn){
+  if(ses.answered)return;const it=ses.q[ses.qi],right=it.right;
+  document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.dataset.ans===right)b.classList.add('good')});
+  const good=btn.dataset.ans===right;if(!good)btn.classList.add('bad');
+  if(it.k==='hf'||it.k==='fh')feedback(good,`<strong>${esc(it.w[0])}</strong> = ${esc(it.w[1])}`);
+  else if(it.k==='g'){const full=it.g[0].replace('___',it.g[1]);feedback(good,`<strong>${esc(full)}</strong>`,it.g[3]?esc(it.g[3]):'')}
+  else feedback(good,`<strong>${esc(it.c[0])}</strong><br>${esc(it.c[1])}`,it.c[3]?esc(it.c[3]):'');
+}
+function check(){
+  if(ses.answered)return;const a=document.getElementById('ans'),v=a.value,w=ses.q[ses.qi].w;if(!v.trim())return a.focus();
+  a.disabled=true;const main=`<strong>${esc(w[0])}</strong> = ${esc(w[1])}`;
+  if(norm(v)===norm(w[0]))feedback(true,main);
+  else if(flat(v)===flat(w[0]))feedback(true,main,'Juste, attention seulement aux signes diacritiques.');
+  else feedback(false,main,'Ta réponse : '+esc(v));
+}
+function renderBuild(){
+  const it=ses.q[ses.qi];
+  document.getElementById('build').innerHTML=it.picked.map((ti,p)=>`<button class="chip" data-un="${p}">${esc(it.tokens[ti])}</button>`).join('');
+  document.querySelectorAll('.pool .chip').forEach(b=>b.disabled=it.picked.includes(+b.dataset.tok));
+}
+function checkS(){
+  if(ses.answered)return;const it=ses.q[ses.qi];if(!it.picked.length)return;
+  const got=norm(it.picked.map(i=>it.tokens[i]).join(' ')),[f,h,alt]=it.s;
+  const ok=[h,...alt].some(x=>norm(x)===got);
+  document.querySelectorAll('.chip').forEach(b=>b.disabled=true);
+  feedback(ok,`<strong>${esc(h)}</strong>${alt.length?`<br><small>Aussi correct : ${alt.map(esc).join(' · ')}</small>`:''}`,ok?'':'L\'ordre des mots est assez libre, mais les petits mots (sam, je, ću, mi, se, li…) restent toujours en 2e position.');
+  say(h);
+}
+function next(){
+  ses.qi++;
+  if(ses.qi<ses.q.length)return question();
+  const t=today();
+  if(ses.lesson)S.done[ses.lesson.id]=t;
+  if(S.last!==t){S.streak=(S.last===yday())?S.streak+1:1;S.last=t}
+  save();
+  const pc=Math.round(ses.ok/ses.total*100),c=curIdx();
+  app.innerHTML=`<div class="end"><p class="sub">${ses.lesson?'Leçon '+ses.lesson.n+' terminée':'Révision terminée'}</p><div class="score">${pc}%</div>
+  <h2>${pc>=80?'Odlično !':pc>=50?'Dobro, nastavi !':'Polako, ponovi sutra.'}</h2>
+  <p class="sub">${ses.ok} bonnes réponses sur ${ses.total} du premier coup · ${S.streak} jour${S.streak>1?'s':''} d'affilée</p>
+  <button class="btn" data-go="home">Retour à l'accueil</button>
+  ${c!==null&&ses.lesson?`<button class="btn alt" data-l="${L[c].id}">Enchaîner sur la leçon ${c+1}</button>`:''}</div>`;
+  ses=null;
+}
+function lex(){
+  const blocks=ALL.map(l=>S.done[l.id]?`<h3>${esc(l.n)}. ${esc(l.t)}</h3>${l.w.map(w=>`<div class="w" data-s="${esc(flat(w[0]+' '+w[1]))}">${spk(w[0])}<div><strong>${esc(w[0])}</strong><small>${esc(w[1])}</small></div></div>`).join('')}`:'').join('');
+  app.innerHTML=`<div class="head"><button class="x" data-go="home">← Accueil</button></div><h1>Lexique</h1>
+  ${blocks?`<input class="find" id="find" type="search" placeholder="Chercher un mot (croate ou français)">${blocks}`:'<p class="sub">Les mots apparaîtront ici au fil des leçons terminées.</p>'}`;
+  const f=document.getElementById('find');
+  if(f)f.addEventListener('input',()=>{const q=flat(f.value);document.querySelectorAll('.w').forEach(r=>r.style.display=r.dataset.s.includes(q)?'':'none')});
+}
+function rules(){
+  const items=ALL.map((l,i)=>S.done[l.id]||i===curIdx()||l.id[0]==='f'?`<details><summary>${esc(l.n)}. ${esc(l.t)}</summary><div class="rule">${l.r.map(p=>`<p>${p}</p>`).join('')}</div>${table(l.tb)}</details>`:'').join('');
+  app.innerHTML=`<div class="head"><button class="x" data-go="home">← Accueil</button></div><h1>Aide-mémoire de grammaire</h1><p class="sub">Les règles et tableaux des leçons ouvertes.</p>${items}`;
+}
+app.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b||b.disabled)return;
+  if(b.dataset.say!==undefined)return say(b.dataset.say);
+  if(b.dataset.key){const a=document.getElementById('ans');if(a&&!a.disabled){const p=a.selectionStart??a.value.length;a.value=a.value.slice(0,p)+b.dataset.key+a.value.slice(a.selectionEnd??p);a.focus();a.setSelectionRange(p+1,p+1)}return}
+  if(b.dataset.ans!==undefined)return choose(b);
+  if(b.dataset.tok!==undefined){if(!ses.answered){ses.q[ses.qi].picked.push(+b.dataset.tok);renderBuild()}return}
+  if(b.dataset.un!==undefined){if(!ses.answered){ses.q[ses.qi].picked.splice(+b.dataset.un,1);renderBuild()}return}
+  if(b.dataset.l!==undefined)return startLesson(b.dataset.l);
+  const g=b.dataset.go;
+  if(g==='home'){ses=null;home()}
+  else if(g==='review')startReview();
+  else if(g==='lex')lex();
+  else if(g==='rules')rules();
+  else if(g==='vocab')vocabView();
+  else if(g==='rule')ruleView();
+  else if(g==='quiz')startQuiz();
+  else if(g==='check')check();
+  else if(g==='checks')checkS();
+  else if(g==='cont')next();
+});
+app.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='ans'){e.preventDefault();check()}});
+home();
+}
+</script>
+<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>
+</body>
+</html>
