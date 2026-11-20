@@ -295,6 +295,12 @@ c:[["Za Božić dolazi puno hodočasnika.","Pour Noël, beaucoup de pèlerins vi
 ];
 const ALL=[...L.map((l,i)=>Object.assign(l,{id:'m'+i,n:String(i+1)})),...F.map((l,i)=>Object.assign(l,{id:'f'+i,n:'Foi '+(i+1)}))];
 const byId=id=>ALL.find(x=>x.id===id);
+/* Traductions affichées à côté des verbes (et mots) entre parenthèses dans les exercices et les tableaux */
+const V={biti:"être",imati:"avoir",govoriti:"parler",pričati:"parler, raconter",piti:"boire",popiti:"boire (jusqu'au bout)",živjeti:"vivre / habiter",raditi:"travailler / faire",doći:"venir",dolaziti:"venir",čuti:"entendre",ići:"aller",čekati:"attendre",reći:"dire",moći:"pouvoir",vidjeti:"voir",jesti:"manger",pojesti:"manger (tout)",pisati:"écrire",napisati:"écrire (en entier)",čitati:"lire",pročitati:"lire (en entier)",kupovati:"acheter (habitude)",kupiti:"acheter (une fois)",zvati:"appeler",nazvati:"appeler (une fois)",davati:"donner (habitude)",dati:"donner (une fois)",sjesti:"s'asseoir",morati:"devoir",htjeti:"vouloir",smjeti:"avoir le droit",trebati:"falloir, avoir besoin",postiti:"jeûner",ozdraviti:"guérir",oprostiti:"pardonner",vjerovati:"croire",osjetiti:"ressentir",shvatiti:"comprendre",plakati:"pleurer",početi:"commencer",ostati:"rester",znati:"savoir",voljeti:"aimer",tražiti:"chercher",putovati:"voyager"};
+const N={gospodin:"monsieur","nova knjiga":"nouveau livre"};ALL.forEach(l=>l.w.forEach(([h,f])=>{const k=h.replace(/\(.*?\)/g,'').trim().toLowerCase();if(/^[a-zčćšžđ ]+$/.test(k)&&!N[k])N[k]=f}));
+const fr=t=>V[t.toLowerCase()]||N[t.toLowerCase()];
+const gloss=s=>s.replace(/\(([^)]*)\)/g,(m,inner)=>{if(inner.includes('='))return m;const i=inner.indexOf(','),head=i<0?inner:inner.slice(0,i),rest=i<0?'':inner.slice(i);let done=false;if(fr(head.trim()))return '('+head.trim()+' = '+fr(head.trim())+rest+')';const nh=head.replace(/[A-Za-zčćšžđČĆŠŽĐ]+/g,t=>{const f=!done&&fr(t);if(f){done=true;return t+' = '+f}return t});return '('+nh+rest+')'});
+const glossCell=(c,plain)=>plain?c:(V[c]?c+' – '+V[c]:gloss(c));
 
 const app=document.getElementById('app');
 const K='hrvatski-v2';
@@ -318,7 +324,7 @@ const doneCount=()=>L.filter(l=>S.done[l.id]).length;
 const curIdx=()=>{const i=L.findIndex(l=>!S.done[l.id]);return i<0?null:i};
 const anyDone=()=>ALL.some(l=>S.done[l.id]);
 const streakNow=()=>(S.last===today()||S.last===yday())?S.streak:0;
-const table=tb=>tb?`<div class="scroll"><table><thead><tr>${tb[0].map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${tb.slice(1).map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'';
+const table=tb=>{if(!tb)return '';const pl=tb[0].includes('sens');return `<div class="scroll"><table><thead><tr>${tb[0].map(h=>`<th>${esc(glossCell(h,pl))}</th>`).join('')}</tr></thead><tbody>${tb.slice(1).map(r=>`<tr>${r.map(c=>`<td>${esc(glossCell(c,pl))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`};
 const gapHtml=q=>esc(q).replace('___','<span class="gap">___</span>');
 const headBar=(lab,pct)=>`<div class="head"><button class="x" data-go="home">← Quitter</button><span class="sub" style="margin:0">${lab}</span></div><div class="bar"><i style="width:${pct}%"></i></div>`;
 
@@ -373,7 +379,7 @@ function question(){
   if(it.k==='hf'){it.right=it.w[1];body=`<p class="q">Que veut dire…</p><div class="card"><div class="big">${esc(it.w[0])}</div></div>${optBtns(vOpts(it.w,1))}`}
   else if(it.k==='fh'){it.right=it.w[0];body=`<p class="q">Comment dit-on en croate…</p><div class="card"><div class="big mid">${esc(it.w[1])}</div></div>${optBtns(vOpts(it.w,0))}`}
   else if(it.k==='type'){body=`<p class="q">Écris en croate</p><div class="card"><div class="big mid">${esc(it.w[1])}</div></div><input class="t" id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ta réponse"><div class="keys">${['č','ć','š','ž','đ'].map(k=>`<button data-key="${k}">${k}</button>`).join('')}</div><button class="btn" data-go="check">Vérifier</button>`}
-  else if(it.k==='g'){const [q,a,o]=it.g;it.right=a;body=`<p class="q">Grammaire · complète la phrase</p><div class="card"><div class="big mid">${gapHtml(q)}</div></div>${optBtns(shuffle([a,...o]),a.length>14)}`}
+  else if(it.k==='g'){const [q,a,o]=it.g;it.right=a;body=`<p class="q">Grammaire · complète la phrase</p><div class="card"><div class="big mid">${gapHtml(gloss(q))}</div></div>${optBtns(shuffle([a,...o]),a.length>14)}`}
   else if(it.k==='c'){const [h,f,o]=it.c;it.right=f;body=`<p class="q">Compréhension · ton ami te dit :</p><div class="card"><div class="big mid">« ${esc(h)} »</div>${spk(h)}</div>${optBtns(shuffle([f,...o]),true)}`}
   else if(it.k==='s'){const [f,h]=it.s;it.tokens=shuffle(h.split(' '));it.picked=[];body=`<p class="q">Construis la phrase en croate</p><div class="card"><div class="big mid">${esc(f)}</div></div><div class="build" id="build" aria-label="Ta phrase"></div><div class="pool">${it.tokens.map((t,i)=>`<button class="chip" data-tok="${i}">${esc(t)}</button>`).join('')}</div><button class="btn" data-go="checks">Vérifier</button>`}
   app.innerHTML=headBar(lab,pct)+body+'<div id="fb"></div>';
@@ -390,7 +396,7 @@ function choose(btn){
   document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.dataset.ans===right)b.classList.add('good')});
   const good=btn.dataset.ans===right;if(!good)btn.classList.add('bad');
   if(it.k==='hf'||it.k==='fh')feedback(good,`<strong>${esc(it.w[0])}</strong> = ${esc(it.w[1])}`);
-  else if(it.k==='g'){const full=it.g[0].replace('___',it.g[1]);feedback(good,`<strong>${esc(full)}</strong>`,it.g[3]?esc(it.g[3]):'')}
+  else if(it.k==='g'){const full=gloss(it.g[0]).replace('___',it.g[1]);feedback(good,`<strong>${esc(full)}</strong>`,it.g[3]?esc(it.g[3]):'')}
   else feedback(good,`<strong>${esc(it.c[0])}</strong><br>${esc(it.c[1])}`,it.c[3]?esc(it.c[3]):'');
 }
 function check(){
